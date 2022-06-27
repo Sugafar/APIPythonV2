@@ -1,13 +1,14 @@
-
+from Helpers.Temperature import Temp
 class NoBase:
-    def __init__(self):
+    def __init__(self,Temp):
+        self.myTemp = Temp
         self.APIGravity = float(0.0)
         self.P60Guess = float(0.0)
         self. NextGuess = float(0.0)
         self.DensityMin = float(610.6)
         self.DensityMax = float(1163.5)
         self.K0 = float(341.0957)
-        self. K1 = float(0.0)
+        self.K1 = float(0.0)
         self.K2 = float(0.0)
         self.Da = float(2.0)
         self.HasDiverged = bool(False)
@@ -15,6 +16,9 @@ class NoBase:
 
         # Density at alternate conditions
         self.PO = float(0.0)
+
+        # Density at base conditions (60F and 0 PSI). 
+        self.P60 = float(0.0)
 
         self.PSI = float(0.0)
 
@@ -77,10 +81,16 @@ class NoBase:
         #Correction factor due to pressure used in iterative procedure
         self.Dp = float(0.0)
 
-        #
+        # Variable used in calculation of pStar
+        self.A = float(0.0)
+
+         # Variable used in calculation of pStar
+        self.B = float(0.0)
 
         #Hydrometer Correction Factor
         self.HYC = float(0.0)
+
+        #
 
         #end intermediate values
 
@@ -104,6 +114,8 @@ class NoBase:
         #Volume at base conditions (60F and 0 PSI)
         self.V60 = float(0.0)
 
+        self.A60 = float(0.0)
+
         #end output values
 
      #setAPIGravity converts
@@ -113,3 +125,48 @@ class NoBase:
         self.P60Guess = (141.5 / (value + 131.5)) * 999.016
         self.PO = (141.5 / (value + 131.5)) * 999.016
         self.APIGravity = value
+        self.P60 = (141.5 / (value + 131.5)) * 999.016
+
+
+     #Runs Newton's Iteration searching for truth or something close
+    def iterateNewton(self):
+        M = 1
+        counter = int(1)
+
+         
+       # print("P60 " + str(self.P60))
+       
+
+        #CalcPStar
+        p1 = self.A ** (1 + 0.8 * self.A) - 1
+        p2 = 1 + self.A * (1 + 1.6 * self.A) * self.B
+        self.PStar = self.P60Guess * (1 + (p1 / p2))
+
+        #Calc A60
+        a60 = (self.K0 / self.PStar + self.K1) * 1 / self.PStar + self.K2
+
+        while(counter<16):
+            # important part of calcCV goes here
+            if self.HYC == 0.0:
+                self.HYC = 1 - (0.00001278 * (self.myTemp.T - 60)) - ((0.0000000062 * pow((self.myTemp.T - 60), 2)))
+                self.P60Guess = self.P60Guess * self.HYC
+                self.PO = self.PO * self.HYC
+
+            
+            self.A = (self.S60 / 2) * ((self.K0 / self.P60Guess + self.K1) * 1 / self.P60Guess + self.K2)
+            self.B = (2 * self.K0 + self.K1 * self.P60Guess) / (self.K0 + (self.K1 + self.K2 * self.P60Guess) * self.P60Guess)
+
+            #Calc CTL
+            cf1 = (-1 * self.A60 * self.ChangeT)
+            cf2 = (self.ChangeT + self.S60)
+            cf3 = (cf1 ** cf2)
+
+            print("cf3" + str(cf3))
+
+           # CTL = Math.Exp(-self.A60 * self.ChangeT * (1 + (.8 * self.A60) * (self.ChangeT + self.S60)))
+            self.CTL = (-self.A60 * self.ChangeT) ** (1 + (.8 * self.A60) *  (self.ChangeT + self.S60))
+            print("CTL " + str(self.CTL))
+             #Calc Fp
+            #double Fpa, Fpb;  //used to clarify the equation
+            Fpa = -1.9947 + (0.00013427 * self.TStar)
+            Fpb = ((793920 + 2326 * self.TStar) / (pow(self.PStar, 2)))

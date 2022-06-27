@@ -7,9 +7,15 @@ myTemp.TF90 = float(enterTemp)
 myTemp.calcTemps()
 print(myTemp.TC90)
 
-myCalc = NoBase()
+myCalc = NoBase(myTemp)
 enterObservedAPIGravity = (input("Enter the observed gravity"))
 myCalc.setAPIGravity(float(enterObservedAPIGravity))
+
+enterPSI = (input("Enter the PSI"))
+myCalc.PSI = float(enterPSI)
+
+myCalc.iterateNewton()
+
 
 print(myCalc.P60Guess)
 
