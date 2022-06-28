@@ -31,9 +31,10 @@ class Temp:
         self.T = self.TC90 / 630
 
             #Calc the temperature correction
-             # self.DeltaT = (-0.148759 + (-0.267408 + (1.080760 + (1.269056 + (-4.089591 + (-1.871251 + (7.438081 + (-3.536296 * self.T)) * self.T) * self.T) * self.T) * self.T) * self.T) * self.T) * self.T
+        self.DeltaT = (-0.148759 + (-0.267408 + (1.080760 + (1.269056 + (-4.089591 + (-1.871251 + (7.438081 + (-3.536296 * self.T)) * self.T) * self.T) * self.T) * self.T) * self.T) * self.T) * self.T
 
             #/Determine the equivalent IPTS-68 Temp. We probably won't use this
+
         self.TC68 = self.TC90 - self.DeltaT
 
         #Convert back to F
@@ -41,3 +42,5 @@ class Temp:
 
         # moved here from iteration loop
         self.ChangeT = self.TF68 - 60.0068749
+
+        print(self.ChangeT)

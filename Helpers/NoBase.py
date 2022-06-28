@@ -99,7 +99,7 @@ P = 0.0
 #Volume at base conditions (60F and 0 PSI
 V60 = 0.0
 
-A60 = 0.0
+#A60 = 0.0
 
 #end output values
 
@@ -116,7 +116,7 @@ def setAPIGravity(self,value):
 def iterateNewton(self,Temp):
     myTemp = Temp
     M = 1
-    counter = int(1)
+    counter = int(0)
 
     while(counter<16):
         # important part of calcCV goes here
@@ -137,16 +137,47 @@ def iterateNewton(self,Temp):
         
         
         #Calc CTL
-        cf1 = (-1 * self.A60 * myTemp.ChangeT)
+        cf1 = (-1 * a60 * myTemp.ChangeT)
         cf2 = (myTemp.ChangeT + self.S60)
         cf3 = (cf1 ** cf2)
 
-        print("cf3" + str(cf3))
+        #print("cf3" + str(cf3))
 
-        self.CTL = math.exp(-self.A60 * myTemp.ChangeT * (1 + (.8 * self.A60) * (myTemp.ChangeT + self.S60)))
+        self.CTL = math.exp(-a60 * myTemp.ChangeT * (1 + (.8 * a60) * (myTemp.ChangeT + self.S60)))
         #self.CTL = (-self.A60 * myTemp.ChangeT) ** (1 + (.8 * self.A60) *  (myTemp.ChangeT + self.S60))
-        print("CTL " + str(self.CTL))
+        #print("CTL " + str(self.CTL))
         #Calc Fp
         #double Fpa, Fpb;  //used to clarify the equation
         Fpa = -1.9947 + (0.00013427 * self.TStar)
         Fpb = ((793920 + 2326 * self.TStar) / (pow(self.PStar, 2)))
+
+        Fp = math.exp(Fpa + Fpb)
+
+        self.CPL = 1 / (1 - (math.pow(10, -5) * Fp * (self.PSI)))
+
+        CTPL = self.CTL * self.CPL
+
+        Rho60mXCTPlm = self.P60Guess * CTPL
+        DeltaRho60m = Rho60mXCTPlm - self.P0
+        Sp0 = abs(DeltaRho60m)
+
+        if (Sp0 < 0.000001):
+            print('How many loops: ' + str(counter))
+            print('CTL: ' + str(self.CTL))
+            print('CPL: ' + str(self.CPL))
+            correctedGravity = (141.5 / (self.P60Guess / 999.016)) - 131.5
+            print('Corrected Gravity @60: ' + str(correctedGravity))
+            break
+
+        # if it didn't break it needs another round, so here's the factors needed to generate the next quess
+        E = (self.P0 / (CTPL)) - self.P60Guess
+        self.Dt = self.Da * a60 * myTemp.DeltaT * (1 + (1.6 * a60 * myTemp.DeltaT))
+        dp1 = 2 * self.CPL * self.PSI * Fp
+        dp2 = 7.93920 + (0.02326 * myTemp.TF90)
+        self.Dp = -(dp1 * dp2) / (self.P60Guess * self.P60Guess)
+        changeP60 = E / (1 + self.Dt + self.Dp)
+
+        self.P60Guess = self.P60Guess + changeP60
+        counter = counter + 1
+
+        #print(self.P60Guess)
