@@ -131,7 +131,7 @@ def iterateNewton(self,Temp):
        # p1 = (self.A ** (1 + 0.8 * self.A)) - 1
         p1 = math.exp(self.A * (1 + 0.8 * self.A)) - 1
         p2 = 1 + self.A * (1 + 1.6 * self.A) * self.B
-        self.PStar = self.P60Guess #* (1 + (p1 / p2))
+        self.PStar = self.P60Guess * (1 + (p1 / p2))
 
         a60 = (self.K0 / self.PStar + self.K1) * 1 / self.PStar + self.K2  
         
@@ -139,9 +139,12 @@ def iterateNewton(self,Temp):
         #Calc CTL
         cf1 = (-1 * a60 * myTemp.ChangeT)
         cf2 = (myTemp.ChangeT + self.S60)
-        cf3 = (cf1 ** cf2)
+        cf3 = math.exp(cf1 * cf2)
 
         #print("cf3" + str(cf3))
+
+        #print("CTL " + str(self.CTL))
+        #testFunction = math.exp(-)
 
         self.CTL = math.exp(-a60 * myTemp.ChangeT * (1 + (.8 * a60) * (myTemp.ChangeT + self.S60)))
         #self.CTL = (-self.A60 * myTemp.ChangeT) ** (1 + (.8 * self.A60) *  (myTemp.ChangeT + self.S60))
