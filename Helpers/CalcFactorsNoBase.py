@@ -1,13 +1,15 @@
 from Helpers.Temperature import Temp
 class NoBase:
+    K0 = 341.0957
+    P60Guess = float(0.0)
     def __init__(self,Temp):
         self.myTemp = Temp
         self.APIGravity = float(0.0)
-        self.P60Guess = float(0.0)
+        #self.P60Guess = float(0.0)
         self. NextGuess = float(0.0)
         self.DensityMin = float(610.6)
         self.DensityMax = float(1163.5)
-        self.K0 = float(341.0957)
+       # self.K0 = float(341.0957)
         self.K1 = float(0.0)
         self.K2 = float(0.0)
         self.Da = float(2.0)
@@ -49,7 +51,7 @@ class NoBase:
         self.ChangeT = float(0.0)
 
         #Coefficient in correlation for a60
-        self.K0 = float(0.0)
+        #self.K0 = float(0.0)
 
         # Coefficient in correlation for a60
         self.K1 = float(0.0)
@@ -140,7 +142,7 @@ class NoBase:
         #CalcPStar
         p1 = self.A ** (1 + 0.8 * self.A) - 1
         p2 = 1 + self.A * (1 + 1.6 * self.A) * self.B
-        self.PStar = self.P60Guess * (1 + (p1 / p2))
+        self.PStar = self.P60Guess #* (1 + (p1 / p2))
 
         #Calc A60
         a60 = (self.K0 / self.PStar + self.K1) * 1 / self.PStar + self.K2
