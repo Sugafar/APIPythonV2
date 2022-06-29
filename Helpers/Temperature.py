@@ -43,4 +43,6 @@ class Temp:
         # moved here from iteration loop
         self.ChangeT = self.TF68 - 60.0068749
 
-        print(self.ChangeT)
+    
+
+        

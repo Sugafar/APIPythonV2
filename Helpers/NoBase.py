@@ -13,6 +13,8 @@ DensityMin = 610.6
 DensityMax = 1163.5
 HasDiverged = False
 
+
+
 # Density at alternate conditions
 P0 = 0.0
 
@@ -100,7 +102,7 @@ P = 0.0
 V60 = 0.0
 
 #A60 = 0.0
-
+BaseGravity = 0.0
 #end output values
 
 #setAPIGravity converts
@@ -113,7 +115,7 @@ def setAPIGravity(self,value):
     self.P60 = (141.5 / (value + 131.5)) * 999.016
 
 #Runs Newton's Iteration searching for truth or something close
-def iterateNewton(self,Temp):
+def calculate(self,Temp):
     myTemp = Temp
     M = 1
     counter = int(0)
@@ -164,12 +166,11 @@ def iterateNewton(self,Temp):
         DeltaRho60m = Rho60mXCTPlm - self.P0
         Sp0 = abs(DeltaRho60m)
 
-        if (Sp0 < 0.000001):
-            print('How many loops: ' + str(counter))
-            print('CTL: ' + str(self.CTL))
-            print('CPL: ' + str(self.CPL))
-            correctedGravity = (141.5 / (self.P60Guess / 999.016)) - 131.5
-            print('Corrected Gravity @60: ' + str(correctedGravity))
+        if (Sp0 < 0.000001 ):
+            self.BaseGravity = (141.5 / (self.P60Guess / 999.016)) - 131.5
+            print('Corrected Gravity @60: ' + str(self.BaseGravity))
+           
+
             break
 
         # if it didn't break it needs another round, so here's the factors needed to generate the next quess
