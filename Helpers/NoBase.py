@@ -143,19 +143,12 @@ def calculate(self,Temp):
         cf2 = (myTemp.ChangeT + self.S60)
         cf3 = math.exp(cf1 * cf2)
 
-        #print("cf3" + str(cf3))
-
-        #print("CTL " + str(self.CTL))
-        #testFunction = math.exp(-)
 
         self.CTL = math.exp(-a60 * myTemp.ChangeT * (1 + (.8 * a60) * (myTemp.ChangeT + self.S60)))
-        #self.CTL = (-self.A60 * myTemp.ChangeT) ** (1 + (.8 * self.A60) *  (myTemp.ChangeT + self.S60))
-        #print("CTL " + str(self.CTL))
+       
         #Calc Fp
-        #double Fpa, Fpb;  //used to clarify the equation
         Fpa = -1.9947 + (0.00013427 * self.TStar)
         Fpb = ((793920 + 2326 * self.TStar) / (pow(self.PStar, 2)))
-
         Fp = math.exp(Fpa + Fpb)
 
         self.CPL = 1 / (1 - (math.pow(10, -5) * Fp * (self.PSI)))
@@ -168,7 +161,6 @@ def calculate(self,Temp):
 
         if (Sp0 < 0.000001 ):
             self.BaseGravity = (141.5 / (self.P60Guess / 999.016)) - 131.5
-            print('Corrected Gravity @60: ' + str(self.BaseGravity))
            
 
             break
@@ -184,4 +176,4 @@ def calculate(self,Temp):
         self.P60Guess = self.P60Guess + changeP60
         counter = counter + 1
 
-        #print(self.P60Guess)
+        
